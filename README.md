@@ -1,7 +1,7 @@
-Video Tutorial https://youtu.be/EOqffCi_9n8
+Video Tutorial https://youtu.be/@rickx999
 ## Contact 
 
-For any queries or support or removal, contact [@mesh5025](https://t.me/rickx999) on Telegram. 
+For any queries or support or removal, contact [@rickx999](https://t.me/rickx999) on Telegram. 
 
 ONLY FOR TESTING PURPOSE 
 ---
