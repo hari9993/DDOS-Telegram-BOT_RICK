@@ -118,7 +118,26 @@ def set_approval_expiry_date(user_id, duration, time_unit):
     user_approval_expiry[user_id] = expiry_date
     return True
 
-# Command handler for adding a user with approval time
+import re  # Add this import at the top (after line 7)
+
+# Function to add or update user approval expiry date
+def set_approval_expiry_date(user_id, duration, time_unit):
+    current_time = datetime.datetime.now()
+    if time_unit == "hour" or time_unit == "hours":
+        expiry_date = current_time + datetime.timedelta(hours=duration)
+    elif time_unit == "day" or time_unit == "days":
+        expiry_date = current_time + datetime.timedelta(days=duration)
+    elif time_unit == "week" or time_unit == "weeks":
+        expiry_date = current_time + datetime.timedelta(weeks=duration)
+    elif time_unit == "month" or time_unit == "months":
+        expiry_date = current_time + datetime.timedelta(days=30 * duration)  # Approximation of a month
+    elif time_unit == "year" or time_unit == "years":
+        expiry_date = current_time + datetime.timedelta(days=365 * duration)  # Approximation of a year
+    else:
+        return False
+    user_approval_expiry[user_id] = expiry_date
+    return True
+
 @bot.message_handler(commands=['add'])
 def add_user(message):
     user_id = str(message.chat.id)
@@ -127,19 +146,20 @@ def add_user(message):
         if len(command) > 2:
             user_to_add = command[1]
             duration_str = command[2]
-
-            try:
-                duration = int(duration_str[:-4])  # Extract the numeric part of the duration
-                if duration <= 0:
-                    raise ValueError
-                time_unit = duration_str[-4:].lower()  # Extract the time unit (e.g., 'hour', 'day', 'week', 'month')
-                if time_unit not in ('hour', 'hours', 'day', 'days', 'week', 'weeks', 'month', 'months'):
-                    raise ValueError
-            except ValueError:
-                response = "Invalid duration format. Please provide a positive integer followed by 'hour(s)', 'day(s)', 'week(s)', or 'month(s)'."
+            match = re.match(r"^(\d+)(hour|day|week|month|year)(s|\(s\))?$", duration_str, re.IGNORECASE)
+            if not match:
+                response = "Invalid duration format. Please provide a positive integer followed by 'hour(s)', 'day(s)', 'week(s)', 'month(s)', or 'year(s)'."
                 bot.reply_to(message, response)
                 return
-
+            try:
+                duration = int(match.group(1))
+                time_unit = match.group(2).lower()
+                if duration <= 0:
+                    raise ValueError
+            except ValueError:
+                response = "Invalid duration. Please provide a positive integer."
+                bot.reply_to(message, response)
+                return
             if user_to_add not in allowed_user_ids:
                 allowed_user_ids.append(user_to_add)
                 with open(USER_FILE, "a") as file:
@@ -151,12 +171,12 @@ def add_user(message):
             else:
                 response = "User already exists 🤦‍♂️."
         else:
-            response = "Please specify a user ID and the duration (e.g., 1hour, 2days, 3weeks, 4months) to add 😘."
+            response = "Please specify a user ID and the duration (e.g., 1hour, 2days, 3weeks, 4months, 1year) to add 😘."
     else:
-        response = "ꜰʀᴇᴇ ᴋᴇ ᴅʜᴀʀᴍ ꜱʜᴀʟᴀ ʜᴀɪ ᴋʏᴀ ᴊᴏ ᴍᴜ ᴜᴛᴛʜᴀ ᴋᴀɪ ᴋʜɪ ʙʜɪ ɢᴜꜱ ʀʜᴀɪ ʜᴏ ʙᴜʏ ᴋʀᴏ ꜰʀᴇᴇ ᴍᴀɪ ᴋᴜᴄʜ ɴʜɪ ᴍɪʟᴛᴀ ʙᴜʏ:- @RICKX999 ❄."
-
+        response = "ꜰʀᴇᴇ ᴋᴇ ᴅʜᴀʀᴍ ꜱʜᴀʟᴀ ʜᴀɪ ᴋʏᴀ ᴊᴏ ᴍᴜ ᴜᴛᴛʜᴀ ᴋᴀɪ ᴋʜɪ ʙʜɪ ɢᴜꜸ ʀʜᴀɪ ʜᴏ ʙᴜʏ ᴋʀᴏ ꜰʀᴇᴇ ᴍᴀɪ ᴋᴜᴄʜ ɴʜɪ ᴍɪʟᴛᴀ ʙᴜʏ:- @RICKX999 ❄."
     bot.reply_to(message, response)
-
+    record_command_logs(user_id, "/add", user_to_add, None, duration_str)
+    
 # Command handler for retrieving user info
 @bot.message_handler(commands=['myinfo'])
 def get_user_info(message):
